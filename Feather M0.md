@@ -47,13 +47,16 @@ static const u1_t PROGMEM APPKEY[16] = {0x89, 0xC3, 0x14, 0x49, 0x73, 0x84, 0x35
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 static osjob_t sendjob;
 ```
-
+payload est la variable qui contient les éléments à transmettre, elle fait 7 bytes.
 ```cpp
 static uint8_t payload[7];                // Payload sent to TTN gateway
-
-
+```
+Variable pour 
+```cpp
 const unsigned TX_INTERVAL = 1;           // TX every x seconds (might be longer due to duty cycle limitations).
+```
 
+```cpp
 const lmic_pinmap lmic_pins = {           // LoRa Pin mapping. Pin 6 & DIO1 have to be connected
     .nss = 8,
     .rxtx = LMIC_UNUSED_PIN,
