@@ -237,7 +237,7 @@ configuration de la Pin d'interruption du capteur et initialisation de ce dernie
   do_send(&sendjob);                        //Start job(sending automatically starts OTAA too)
 ```
 ### Loop
-Réalisation des tâches citées plus haut 
+Réalisation des tâches basées sur les évenements, cette fonctoin permet de faire fonctionner la radio. Transmission périodique de données.
 ```cpp
 void loop() {
   os_runloop_once();
