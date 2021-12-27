@@ -1,3 +1,6 @@
 # Node-Red Configuration 
-The Node Red server allows us to display data transmitted from the sensors via a connection to the Mqtt broker. Configurated Nodes allow us to decode the data and retransmit it to a Dashboard where they are viewed in forms of a graph or text.
-For the connection to the broker Mqtt, we use the node Mqtt-In, we set the server of the thing network and the subscription of topics. The recovered values are decoded from base 64 and they are returned in jason. The decoded values are extracted via nodes change and reset under new variables. These values are then transmitted to graphic and text nodes on the interface.  
+Le serveur Node Red nous permet d’afficher les données transmises depuis les capteurs via une connexion au broker Mqtt. Les nœuds configurés nous permettent de décoder les données et de les retransmettre dans un dashboard où elles sont visualisées sous la forme d’un graphique ou d’un texte.
+![diagrame](configuration Node-Red.PNG)
+
+Pour la connexion au broker Mqtt, nous utilisons le nœud Mqtt-In, nous définissons le serveur aux quelle nous sommes connectés et l’abonnement aux topics. Il s'agit du serveur The things network dans lequel en génère une clé qu'on introduit dans le node Mqtt pour nous authentifie et sécurise le trafic des données.
+Les valeurs récupérées via le node Mqtt sont en base 64. Node Red fait un décodage automatique et le noeud permet de récupérer les données sous format Jason. Dans le but d'afficher ses données séparément, chaque valeur décodée est réinitialisée sous de nouvelles variables payload via le noeud change. Ces valeurs sont ensuite transmises aux nœuds graphiques et textuels du Dashboard.  
