@@ -16,7 +16,7 @@ Le cepteur de saturation en oxygène et rythme cardiaque est le XXXX.
 #include "algorithm.h"
 #include "max30102.h"
 ```
-Le LORA est employé pour communiquer entre la board et une passerelle TTN (Things Talk Network).
+Le LORA est employé pour communiquer entre la board et une passerelle TTN (The Things Network).
 ```cpp
 #include <lmic.h>
 #include <hal/hal.h>
@@ -55,7 +55,7 @@ Variable pour instaurer le temps entre deux transmissions LORA, exprumé en seco
 ```cpp
 const unsigned TX_INTERVAL = 1;           // TX every x seconds (might be longer due to duty cycle limitations).
 ```
-
+Configuration des la board pour la communication LORA
 ```cpp
 const lmic_pinmap lmic_pins = {           // LoRa Pin mapping. Pin 6 & DIO1 have to be connected
     .nss = 8,
@@ -67,16 +67,7 @@ const lmic_pinmap lmic_pins = {           // LoRa Pin mapping. Pin 6 & DIO1 have
     .spi_freq = 8000000,
 };
 ```
-
-```cpp
-void printHex2(unsigned v) {
-    v &= 0xff;
-    if (v < 16)
-        Serial.print('0');
-        Serial.print(v, HEX);
-}
-```
-
+Gestion des evenements pour la communication LORA, obtension des informations sur la connexion. Désactivation des checks de validation pour gagner en performances.
 ```cpp
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
@@ -143,7 +134,7 @@ void do_send(osjob_t* j){
        Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
 ```
-
+Acquisition des données de fréquance cardiaque et saturation oxygène. Réalisation de 100 mesures placées dans la FIFO du capteur, puis recupérées et manipul&es par la board et l'algorithme fourni par MAXIM.
 ```cpp
         /*HEARTBEAT DATA*/
         float n_spo2,ratio,correl;          // SPO2 value
@@ -168,7 +159,7 @@ void do_send(osjob_t* j){
                                             &ratio, 
                                             &correl); 
 ```
-
+Acquisition du capteur acceleromètre, détection d'une grande variatoin sur un des trois axs, X, Y et Z. si c'esr le cas, on met le flag de chutte à 1 sinon 0.
 ```cpp
         /*FALL DETECTION DATA*/
         LIS.getAcceleration(&X, &Y, &Z);
@@ -177,7 +168,7 @@ void do_send(osjob_t* j){
         if(deltaX > 0.9 || deltaY > 0.9 || deltaZ > 0.9){fall = 1;} // 0.9 value was found by testing
         else{fall = 0;}
 ```
-
+Acquisitoin de la température depuis le capteur MAXIMM.
 ```cpp
         /*TEMPERATURE DATA*/
         int8_t integer_temperature;
@@ -186,13 +177,13 @@ void do_send(osjob_t* j){
         float temperature = integer_temperature + ((float)fractional_temperature)/16.0;
 
 ```
-
+La payload sera constitué de toutes nos valeurs récupérées sur nos capteur et converties sur deux bytes sauf pour le flag de chutte.
 ```cpp
         // PAYLOAD CREATION
         int shiftTEMP = int(temperature); 
         payload[0] = byte(shiftTEMP);
         payload[1] = shiftTEMP >>8;
-
+        
         int shiftHR = int(n_heart_rate); 
         payload[2] = byte(shiftHR);
         payload[3] = shiftHR >>8;        
@@ -200,18 +191,19 @@ void do_send(osjob_t* j){
         int shiftSPO = int(n_spo2); 
         payload[4] = byte(shiftSPO);
         payload[5] = shiftSPO >>8;        
-
+        
         payload[6] = byte(fall);
         
         LMIC_setTxData2(1, payload, sizeof(payload)-1, 0); 
 ```
-
+        
 ### Setup
+Extinction de la led interne permet de diminuer la consommation electrique de la board et par conséquant allonger la durée de fonctionnement sur batteries.
 ```cpp
   pinMode(led,OUTPUT);
   digitalWrite(led,LOW);                    // Turn off internal LED to save power
 ```
-
+Initialisation du bus I²C à une fréquence de transmissoin de 10Hz et en mode basse puissance.
 ```cpp
   /*FALL DETECTION*/
   LIS.begin(WIRE, 0x19);                    // I²C init
@@ -220,13 +212,13 @@ void do_send(osjob_t* j){
   LIS.setOutputDataRate(LIS3DHTR_DATARATE_10HZ);
   LIS.setPowerMode(POWER_MODE_LOW);         //Low-Power enable
 ```
-
+configuration de la Pin d'interruption du capteur et initialisation de ce dernier.
 ```cpp
 /*HEARTBEAT*/
   pinMode(oxiInt, INPUT);                   // pin D10 -> MAX30102 interrupt
   maxim_max30102_init();                    // initialize the MAX30102
 ```
-
+établissement de la communication série à 9600 baud, initialisation de LORA, configuratoin du Spreading factor, lié à la puissance et consommatoin lors de la communicatoin et demmarage de sa tâche principale.
 ```cpp
 /*LORA*/
   delay(3000);
@@ -244,7 +236,7 @@ void do_send(osjob_t* j){
   
   do_send(&sendjob);                        //Start job(sending automatically starts OTAA too)
 ```
-
+Réalisation des tâches citées plus haut 
 ```cpp
 void loop() {
   os_runloop_once();
