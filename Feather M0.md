@@ -236,6 +236,7 @@ configuration de la Pin d'interruption du capteur et initialisation de ce dernie
   
   do_send(&sendjob);                        //Start job(sending automatically starts OTAA too)
 ```
+### Loop
 Réalisation des tâches citées plus haut 
 ```cpp
 void loop() {
