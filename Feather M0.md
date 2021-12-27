@@ -1,14 +1,14 @@
 # Feather M0 Code
 Dans cette section, nous allons prendre le temps de passer en revue le code et expliquer l'utilisté de diverses fonctions et variables.
 ### Librairies
-Nous employons un acceleromètre XXX pour détecter les chues, ce dernier est connecté en I²C à notre board
+Nous employons un acceleromètre XXX pour détecter les chues, ce dernier est connecté en I²C à notre board.
 ```cpp
 #include "LIS3DHTR.h"
 #include <Wire.h>
 LIS3DHTR<TwoWire> LIS;
 #define WIRE Wire
 ```
-Le cepteur de saturation en oxygène et rythme cardiaque est le XXXX
+Le cepteur de saturation en oxygène et rythme cardiaque est le XXXX.
 ```cpp
 #include <Arduino.h>
 #include <SPI.h>
@@ -16,20 +16,20 @@ Le cepteur de saturation en oxygène et rythme cardiaque est le XXXX
 #include "algorithm.h"
 #include "max30102.h"
 ```
-Le LORA est employé pour communiquer entre la board et une passerelle TTN (Things Talk Network)
+Le LORA est employé pour communiquer entre la board et une passerelle TTN (Things Talk Network).
 ```cpp
 #include <lmic.h>
 #include <hal/hal.h>
 ```
 ### Definitions
-Variables qui serviront à le détection de chuttes. Les lettres majuscules contiennesnt les valeur actuelles de l'acceleromètre et les minucules l'ancienne valeur. Les deltas permettent de quantifier les fluctuations du clapteur.
+Variables qui serviront à le détection de chuttes. Les lettres majuscules contiennesnt les valeur actuelles de l'acceleromètre et les minucules l'ancienne valeur. Les deltas permettent de quantifier les fluctuations du capteur.
 ```cpp
 int led = 13;                             // Integrated LED indicator
 float x, y, z, X, Y, Z  = 0;              // Capital letter = actual value, small letter = old value
 float deltaX, deltaY, deltaZ = 0;
 int fall = 0;                             // Data sent to TTN gateway; 1 if fall detected
 ```
-Configuration de la communication LORA avec TTN
+Configuration de la communication LORA avec TTN.
 ```cpp
 // EUI -> little-endian format, LSB first. If copying EUI from ttnctl output -> reverse the bytes.
 // TTN issued EUIs -> last bytes should be 0xD5, 0xB3,0x70.
@@ -47,11 +47,11 @@ static const u1_t PROGMEM APPKEY[16] = {0x89, 0xC3, 0x14, 0x49, 0x73, 0x84, 0x35
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 static osjob_t sendjob;
 ```
-payload est la variable qui contient les éléments à transmettre, elle fait 7 bytes.
+Payload est la variable qui contient les éléments à transmettre, elle fait 7 bytes. La fréquence cardiaque, la saturation en oxygène, la temperature et 
 ```cpp
 static uint8_t payload[7];                // Payload sent to TTN gateway
 ```
-Variable pour 
+Variable pour instaurer le temps entre deux transmissions LORA, exprumé en secondes.
 ```cpp
 const unsigned TX_INTERVAL = 1;           // TX every x seconds (might be longer due to duty cycle limitations).
 ```
