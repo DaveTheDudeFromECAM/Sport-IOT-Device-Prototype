@@ -1,14 +1,14 @@
 # Feather M0 Code
-Dans cette section, nous allons prendre le temps de passer en revue le code et expliquer l'utilisté de diverses fonctions et variables.
+Dans cette section, nous allons prendre le temps de passer en revue le code et expliquer l'utilité de diverses fonctions et variables.
 ### Librairies
-Nous employons un acceleromètre XXX pour détecter les chues, ce dernier est connecté en I²C à notre board.
+Nous employons un accéléromètre XXX pour détecter les chutes, ce dernier est connecté en I²C à notre board.
 ```cpp
 #include "LIS3DHTR.h"
 #include <Wire.h>
 LIS3DHTR<TwoWire> LIS;
 #define WIRE Wire
 ```
-Le cepteur de saturation en oxygène et rythme cardiaque est le XXXX.
+Le capteur de saturation en oxygène et rythme cardiaque est le XXXX.
 ```cpp
 #include <Arduino.h>
 #include <SPI.h>
@@ -22,14 +22,14 @@ Le LORA est employé pour communiquer entre la board et une passerelle TTN (The 
 #include <hal/hal.h>
 ```
 ### Definitions
-Variables qui serviront à le détection de chuttes. Les lettres majuscules contiennesnt les valeur actuelles de l'acceleromètre et les minucules l'ancienne valeur. Les deltas permettent de quantifier les fluctuations du capteur.
+Variables qui serviront à la détection de chutes. Les lettres majuscules contiennent les valeurs actuelles de l'accéléromètre et les minuscules l'ancienne valeur. Les deltas permettent de quantifier les fluctuations du capteur.
 ```cpp
 int led = 13;                             // Integrated LED indicator
 float x, y, z, X, Y, Z  = 0;              // Capital letter = actual value, small letter = old value
 float deltaX, deltaY, deltaZ = 0;
 int fall = 0;                             // Data sent to TTN gateway; 1 if fall detected
 ```
-Configuration de la communication LORA avec TTN.
+Configuration de la communication LORA pour TTN.
 ```cpp
 // EUI -> little-endian format, LSB first. If copying EUI from ttnctl output -> reverse the bytes.
 // TTN issued EUIs -> last bytes should be 0xD5, 0xB3,0x70.
@@ -47,15 +47,15 @@ static const u1_t PROGMEM APPKEY[16] = {0x89, 0xC3, 0x14, 0x49, 0x73, 0x84, 0x35
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 static osjob_t sendjob;
 ```
-Payload est la variable qui contient les éléments à transmettre, elle fait 7 bytes. La fréquence cardiaque, la saturation en oxygène, la temperature et 
+Payload est la variable qui contient les éléments à transmettre, elle fait 7 bytes. La fréquence cardiaque, la saturation en oxygène, la température et le flag pour la détection de chutes.
 ```cpp
 static uint8_t payload[7];                // Payload sent to TTN gateway
 ```
-Variable pour instaurer le temps entre deux transmissions LORA, exprumé en secondes.
+Variable pour instaurer le temps entre deux transmissions LORA, exprimé en secondes.
 ```cpp
 const unsigned TX_INTERVAL = 1;           // TX every x seconds (might be longer due to duty cycle limitations).
 ```
-Configuration des la board pour la communication LORA
+Configuration du Feather M0 pour la communication LORA.
 ```cpp
 const lmic_pinmap lmic_pins = {           // LoRa Pin mapping. Pin 6 & DIO1 have to be connected
     .nss = 8,
@@ -67,7 +67,7 @@ const lmic_pinmap lmic_pins = {           // LoRa Pin mapping. Pin 6 & DIO1 have
     .spi_freq = 8000000,
 };
 ```
-Gestion des evenements pour la communication LORA, obtension des informations sur la connexion. Désactivation des checks de validation pour gagner en performances.
+Gestion des évènements pour la communication LORA, obtention des informations sur la connexion. Désactivation des checks de validation pour gagner en performances.
 ```cpp
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
@@ -134,7 +134,7 @@ void do_send(osjob_t* j){
        Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
 ```
-Acquisition des données de fréquance cardiaque et saturation oxygène. Réalisation de 100 mesures placées dans la FIFO du capteur, puis recupérées et manipul&es par la board et l'algorithme fourni par MAXIM.
+Acquisition des données de fréquence cardiaque et saturation oxygène. Réalisation de 100 mesures placées dans la FIFO du capteur, puis récupérées et manipulés par le Feather m0 et l'algorithme fourni par MAXIM.
 ```cpp
         /*HEARTBEAT DATA*/
         float n_spo2,ratio,correl;          // SPO2 value
@@ -159,7 +159,7 @@ Acquisition des données de fréquance cardiaque et saturation oxygène. Réalis
                                             &ratio, 
                                             &correl); 
 ```
-Acquisition du capteur acceleromètre, détection d'une grande variatoin sur un des trois axs, X, Y et Z. si c'esr le cas, on met le flag de chutte à 1 sinon 0.
+Acquisition du capteur accéléromètre, détection d'une grande variation sur un des trois axes, X, Y et Z.  Si c'est le cas, on met le flag de chute à 1 sinon 0.
 ```cpp
         /*FALL DETECTION DATA*/
         LIS.getAcceleration(&X, &Y, &Z);
@@ -168,7 +168,7 @@ Acquisition du capteur acceleromètre, détection d'une grande variatoin sur un 
         if(deltaX > 0.9 || deltaY > 0.9 || deltaZ > 0.9){fall = 1;} // 0.9 value was found by testing
         else{fall = 0;}
 ```
-Acquisitoin de la température depuis le capteur MAXIMM.
+Acquisition de la température depuis le capteur MAXIMM.
 ```cpp
         /*TEMPERATURE DATA*/
         int8_t integer_temperature;
@@ -177,7 +177,7 @@ Acquisitoin de la température depuis le capteur MAXIMM.
         float temperature = integer_temperature + ((float)fractional_temperature)/16.0;
 
 ```
-La payload sera constitué de toutes nos valeurs récupérées sur nos capteur et converties sur deux bytes sauf pour le flag de chutte.
+La payload sera constitué de toutes nos valeurs récupérées sur nos capteur et converties sur deux bytes sauf pour le flag de chute.
 ```cpp
         // PAYLOAD CREATION
         int shiftTEMP = int(temperature); 
@@ -198,7 +198,7 @@ La payload sera constitué de toutes nos valeurs récupérées sur nos capteur e
 ```
         
 ### Setup
-Extinction de la led interne permet de diminuer la consommation electrique de la board et par conséquant allonger la durée de fonctionnement sur batteries.
+Extinction de la led interne permet de diminuer la consommation électrique du Feather m0, par conséquent allonger la durée de fonctionnement sur batteries.
 ```cpp
   pinMode(led,OUTPUT);
   digitalWrite(led,LOW);                    // Turn off internal LED to save power
@@ -212,13 +212,13 @@ Initialisation du bus I²C à une fréquence de transmissoin de 10Hz et en mode 
   LIS.setOutputDataRate(LIS3DHTR_DATARATE_10HZ);
   LIS.setPowerMode(POWER_MODE_LOW);         //Low-Power enable
 ```
-configuration de la Pin d'interruption du capteur et initialisation de ce dernier.
+Configuration de la Pin d'interruption du capteur et initialisation de ce dernier.
 ```cpp
 /*HEARTBEAT*/
   pinMode(oxiInt, INPUT);                   // pin D10 -> MAX30102 interrupt
   maxim_max30102_init();                    // initialize the MAX30102
 ```
-établissement de la communication série à 9600 baud, initialisation de LORA, configuratoin du Spreading factor, lié à la puissance et consommatoin lors de la communicatoin et demmarage de sa tâche principale.
+Établissement de la communication série à 9600 bauds, initialisation de LORA, configuration du spreading factor, lié à la puissance et consommation lors de la communication et démarrage de sa tâche principale.
 ```cpp
 /*LORA*/
   delay(3000);
