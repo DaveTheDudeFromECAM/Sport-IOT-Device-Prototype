@@ -189,7 +189,7 @@ La payload sera constitué de toutes nos valeurs récupérées sur nos capteur e
         payload[3] = shiftHR >>8;        
         
         int shiftSPO = int(n_spo2); 
-        payload[4] = byte(shiftSPO);
+        payload[4] = byte(shiftSPO); 
         payload[5] = shiftSPO >>8;        
         
         payload[6] = byte(fall);
