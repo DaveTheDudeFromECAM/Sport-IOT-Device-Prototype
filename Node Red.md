@@ -1,6 +1,6 @@
 # Node-Red Configuration 
 Le serveur Node Red nous permet d’afficher les données transmises depuis les capteurs via une connexion au broker Mqtt. Les nœuds configurés nous permettent de décoder les données et de les retransmettre dans un dashboard où elles sont visualisées sous la forme d’un graphique ou d’un texte.
-![diagrame](configuration Node-Red.PNG)
+![diagrame](Sport-IOT-Device-Prototype/configuration Node-Red.PNG)
 
 Pour la connexion au broker Mqtt, nous utilisons le nœud Mqtt-In, nous définissons le serveur aux quelle nous sommes connectés et l’abonnement aux topics. Il s'agit du serveur The things network dans lequel en génère une clé qu'on introduit dans le node Mqtt pour nous authentifie et sécurise le trafic des données.
 
