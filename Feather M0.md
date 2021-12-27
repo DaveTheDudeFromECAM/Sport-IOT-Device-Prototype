@@ -38,7 +38,7 @@ void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // Also in little endian format, see above.
 static const u1_t PROGMEM DEVEUI[8] = { 0x3E, 0x97, 0x04, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
-void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
+void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}p^))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 // Key should be in big endian format. Or, since it is not really a number but a block of memory, endianness does 
 // not really apply. In practice, a key taken from the TTN console can be copied as-is.
